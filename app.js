@@ -4,7 +4,7 @@ var server     = require('http').Server(app); // Created new Server instance
 var io         = require('socket.io')(server);
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
-var process    = require('child_process'); // MULTIPROCESS
+var children   = require('child_process'); // MULTIPROCESS
 var tools      = require('./tools'); // TOOLS
 var db         = require('./db'); // MONGODB SCHEMAS
 
@@ -113,47 +113,29 @@ app.post('/', function(req, res){
 		var data = req.body;
 		console.log('----------------------------------');
 		console.log('Board ' + board_name);
-		console.log('Board from: ' + req.connection.ip);
-		console.log('Location:');
-		console.log('\tLat: ', data.location.lat);
-		console.log('\tLon: ', data.location.lon);
         console.log('Measurement: ', data.concentration);
 		console.log('----------------------------------');
 
-		// Save board_name:sensor_name = value LPUSH
-		redis_client.lpush(board_name, sensors_names, function(err, reply){
-			console.log(board_name + ' has ' + reply + ' sensors.');
-		});
-
-
-        redis_client.lpush(board_name, data.concentration, function(err, reply){
+        console.log(board_name, typeof(board_name));
+        redis_client.rpush(board_name, data.concentration, function(err, reply){
             if(err){
                 console.log('Error: ', err);
             }
             else{
-                console.log(board_name + 'has saved a new concentration value.');
+                console.log(board_name + 'has saved a new concentration value to redis.');
             }
         } );
 
-
-		// Emit live data to the client
-		d = {
-			name: board_name,
-			_id: data._id,
-			location: {
-				lat: data.location.lat,
-				lon: data.location.lon
-			},
-			measurement: [
-                {
-                    date: new Date,
-                     concentration: data.concentration
-                }
-			]
-		}
-
-		io.emit('update', { data: d });
-	});
+        Board.findOne({name: board_name}, function(e, d){
+          datapoint = {
+            name: board_name,
+            location: d.location,
+            concentration: data.concentration,
+            date: new Date
+          }
+          io.emit('live', {live_data:datapoint})
+          });
+    });
 });
 
 // GET WEB PAGE
@@ -161,4 +143,10 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
-var child = process.fork('./timesaving');
+var child = children.fork('./timesaving');
+
+process.on('SIGINT', function(){
+    child.kill('SIGINT');
+    process.exit(0);
+});
+

@@ -32,8 +32,13 @@ setInterval(function(){
 						var mean = 0;
 						// GET SENSORS NAME TYPE: ARRAY
                         client.lrange(board_name, 0, -1, function(err, measurements){
-                            mean = tools.mean(measurements);
-						});
+                            if(err)
+                            {
+                                console.log('Error: ', err)
+                            }else{
+                                mean = tools.mean(measurements);
+                            }
+                        });
 
 						// SAVE MEASRUEMENT
 						var measurement = new Measurement({

@@ -64,37 +64,50 @@ module.exports.authorized = function(request, response, callback){
 
 		// Parsing every single data
 		recv_header            = recv_header.slice(7, recv_header.length).split(', ');
-		client_header.username = recv_header[0].replace(/(username=)|(['"']+)/, '');
-		client_header.realm    = recv_header[1].replace(/(realm=)|(['"']+)/, '');
-		client_header.nonce    = recv_header[2].replace(/(nonce=)|(['"']+)/, '');
-		client_header.uri      = recv_header[3].replace(/(uri=)|(['"']+)/, '');
-		client_header.response = recv_header[4].replace(/(response=)|(['"']+)/, '');
+		client_header.username = recv_header[0].replace(/(username=)|(")/g, '');
+		client_header.realm    = recv_header[1].replace(/(realm=)|(")/g, '');
+		client_header.nonce    = recv_header[2].replace(/(nonce=)|(")/g, '');
+		client_header.uri      = recv_header[3].replace(/(uri=)|(")/g,'');
+	    client_header.response = recv_header[4].replace(/(response=)|(")/g, '');
 
-		Board.find({name:client_header.username}, function(e, d){
-			/*
+
+        var username = client_header.username;
+        console.log(username)
+
+        Board.findOne({name: username}, function(e, d){
+
+            /*
 				A1 = MD5(username:realm:password)
 				A2 = MD5(method:uri)
 
 				response = MD5(A1:nonce:A2)
 			*/
-			A1 =  md5(client_header.username + ':' + client_header.realm + ':' + d[0].password);
+            console.log(d)
+            if(d == null|| e){
+                console.log('Unauthorized');
+                response.sendStatus(401);
+            }else{
+			A1 =  md5(client_header.username + ':' + client_header.realm + ':' + d.password);
 
 			A2 = md5(request.method + ':' + client_header.uri);
 
-			server_gen_response = md5(A1 + ':' + client_header.nonce + ':' + A2);
+            server_gen_response = md5(A1 + ':' + client_header.nonce + ':' + A2);
 
-			// Gen reponse to check if the client's request is the same as the generated string.
+			// Gen response to check if the client's request is the same as the generated string.
 			if(client_header.response == server_gen_response){
 				console.log('----------------------------------');
 				console.log('Board authorized!');
-				console.log('Board: ' + client_header.username + ' connected.');
+				console.log('Board ' + client_header.username + ' connected.');
 				console.log('----------------------------------');
 				callback(client_header.username);
+                response.sendStatus(200);
 			}else{
 				console.log('Unauthorized.')
 				response.sendStatus(401) // 401 => status code for unauthorized
 			}
-		});
+
+		}
+    });
 
 	// Request from a client (raspberry pi) trying to accces to a blocked source
 	}else{
