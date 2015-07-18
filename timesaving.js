@@ -12,17 +12,16 @@ setInterval(function(){
 		// For every board in the database
 		for(var i = 0; i < board.length; ++i){
 			var board_name = board[i].name;
-			var board_id = board[i]._id;
 			var board_actual_data = board[i];
-			(function(board_name, board_id){
-				client.ttl(board_name, function(e, reply){
+            (function(board_name){
+				client.ttl(board_name + "time", function(e, reply){
 					// Check if there is a time control key for the board ckecked. If there isn't it creates a new one with
 					// an expiration time of 30min;
 					if(reply == -1){ // When the key exist but it hasn't set a time
-						client.set(board_name, board_name, function(e, reply){
+						client.set(board_name + "time", board_name, function(e, reply){
 							console.log(reply);
 						});
-						client.expire(board_name, 10);
+						client.expire(board_name + "time", 10);
 					}else if(reply == -2){ // When it expires we reset the time control key and save the average of the data measured in the last 30 min
 						/*
 						    Check if the time control key has expirated. If it has expirated it gets the list of measurements taken
@@ -46,8 +45,6 @@ setInterval(function(){
                             concentration: mean
 						});
 
-                        console.log(measurement, board_name, mean)
-
                         board_actual_data.measurements.push(measurement);
                         board_actual_data.save(function(err){
                             if(err) console.log(err);
@@ -59,12 +56,12 @@ setInterval(function(){
 
 						console.log('New measurement saved!')
 						//Create new time control key with a 1800 seconds (30min) expiration time.
-						client.set(board_name, board_name);
-						client.expire(board_name, 10);
+						client.set(board_name + "time", board_name);
+						client.expire(board_name + "time", 10);
 					}
 
 					});
-			})(board_name, board_id);
+            })(board_name);
 		}
 	});
 }, 1);
