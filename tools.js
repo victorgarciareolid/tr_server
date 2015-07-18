@@ -95,10 +95,6 @@ module.exports.authorized = function(request, response, callback){
 
 			// Gen response to check if the client's request is the same as the generated string.
 			if(client_header.response == server_gen_response){
-				console.log('----------------------------------');
-				console.log('Board authorized!');
-				console.log('Board ' + client_header.username + ' connected.');
-				console.log('----------------------------------');
 				callback(client_header.username);
                 response.sendStatus(200);
 			}else{

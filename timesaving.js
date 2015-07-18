@@ -8,12 +8,12 @@ var client = redis.client;
 
 // Check every second
 setInterval(function(){
-	Board.find({}, function(e, board){
+	Board.find({}, function(e, boards){
 		// For every board in the database
-		for(var i = 0; i < board.length; ++i){
-			var board_name = board[i].name;
-			var board_actual_data = board[i];
-            (function(board_name){
+		for(var i = 0; i < boards.length; ++i){
+			var board_name = boards[i].name;
+            var board_data = boards[i];
+            (function(board_name, board_data){
 				client.ttl(board_name + "time", function(e, reply){
 					// Check if there is a time control key for the board ckecked. If there isn't it creates a new one with
 					// an expiration time of 30min;
@@ -28,40 +28,43 @@ setInterval(function(){
 							in the last 30 min, make a arithmetic mean and save it to MongoDB.
 							After that it creates a new time control key with an expiration time of 30 min.
 						 */
-						var mean = 0;
-						// GET SENSORS NAME TYPE: ARRAY
+
+
                         client.lrange(board_name, 0, -1, function(err, measurements){
                             if(err)
                             {
                                 console.log('Error: ', err)
                             }else{
-                                mean = tools.mean(measurements);
+                                var mean = tools.mean(measurements);
+                                client.del(board_name, function(e, r){
+                                    if(err) console.log('Error: ', e);
+                                });
+
+                                var measurement = new Measurement({
+                                    date: new Date,
+                                    concentration: mean
+                                });
+
+                                board_data.measurements.push(measurement);
+                                board_data.save(function(e){
+                                    if(e) console.log('Error: ', e);
+                                });
+
+                                measurement.save(function(e){
+                                    if(e) console.log('Error: ', e);
+                                });
+
+                                console.log('New measurement saved to MongoDB.', measurement)
                             }
                         });
 
-						// SAVE MEASRUEMENT
-						var measurement = new Measurement({
-							date: new Date,
-                            concentration: mean
-						});
-
-                        board_actual_data.measurements.push(measurement);
-                        board_actual_data.save(function(err){
-                            if(err) console.log(err);
-                        });
-
-						measurement.save(function(err, reply){
-							if(err) console.log(err);
-						});
-
-						console.log('New measurement saved!')
 						//Create new time control key with a 1800 seconds (30min) expiration time.
 						client.set(board_name + "time", board_name);
 						client.expire(board_name + "time", 10);
 					}
 
 					});
-            })(board_name);
+            })(board_name, board_data);
 		}
 	});
 }, 1);

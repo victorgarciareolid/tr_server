@@ -116,13 +116,12 @@ app.post('/', function(req, res){
         console.log('Measurement: ', data.concentration);
 		console.log('----------------------------------');
 
-        console.log(board_name, typeof(board_name));
         redis_client.rpush(board_name, data.concentration, function(err, reply){
             if(err){
                 console.log('Error: ', err);
             }
             else{
-                console.log(board_name + 'has saved a new concentration value to redis.');
+                console.log(board_name + ' has saved a new concentration value to redis.');
             }
         } );
 
