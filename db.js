@@ -33,7 +33,7 @@ var Board = new Schema({
 	password: String,
 	location: {
 		lat: Number,
-		lon: Number
+		lng: Number
 	},
 	measurements: [{type: Schema.Types.ObjectId, ref: 'measurement'}]
 });

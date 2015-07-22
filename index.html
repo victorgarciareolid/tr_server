@@ -29,16 +29,21 @@
 	</style>
 
 <script>
+
 $(document).ready(function(){
 	var mapOptions = {
     center: { lat: 41.358889, lng: 2.099167},
 	  zoom: 14
 	};
 
+
 	var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
 	addCircle({lat: 41, lng: 2}, 1000, "#000000", map)
-	$("#charts").append("")
+	<div id="board_name + livechart"></div>
+	<div id ="board_name + historicalchart"></div>
+
+	$("#charts").append("<div id=" + board_name + "></div>")
 });
 
 var addCircle = function(center, radius, color, map){

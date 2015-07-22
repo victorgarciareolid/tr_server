@@ -29,7 +29,7 @@ server.listen(3000); // LISTEN AT PORT 3000
 		password: "board_password",
 		location: {
 			lat: 232,
-			lon: 32
+			lng: 32
 		}
 	}
 */
@@ -66,7 +66,7 @@ app.put('/crud', function(req, res){
 			name: req.body.name,
 			location: {
 				lat: req.body.lat,
-				lon: req.body.lon,
+				lng: req.body.lng,
 			},
 			password: req.body.password,
 		}, function(err){
@@ -101,7 +101,7 @@ app.delete('/crud', function(req, res){
 	{
 		location: {
 			lat: 32,
-			lon: 23
+			lng: 23
 		},
         concentration: 23.232
 
