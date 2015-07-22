@@ -33,23 +33,9 @@ server.listen(3000); // LISTEN AT PORT 3000
 		}
 	}
 */
-// CREATE NEW BOARD
-app.post('/crud', function(req, res){
-	var newboard = new Board({
-		name: req.body.name,
-        password: req.body.password,
-        date: new Date
-	});
-	newboard.save(function(err){
-		if(err){
-			console.log(err);
-		}
-	});
-});
-
 // READ ALL
-app.get('/crud', function(req, res){
-	Board.find({}).select('-__v -password').populate('measurements').exec(function(e, data){
+app.get('/api', function(req, res){
+	Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(e, data){
 		if(err){
 			console.log(err);
 			res.json({error: err});
@@ -59,41 +45,6 @@ app.get('/crud', function(req, res){
 	});
 });
 
-//UPDATE BOARD
-app.put('/crud', function(req, res){
-	authorized(req, res, function(board){
-		Board.update({_id: req.body._id}, {
-			name: req.body.name,
-			location: {
-				lat: req.body.lat,
-				lng: req.body.lng,
-			},
-			password: req.body.password,
-		}, function(err){
-			if(err){
-				console.log(err);
-				res.json({error: err});
-			}else{
-				res.sendStatus(200); // OK
-			}
-		});
-	});
-});
-
-// DELETE BOARD
-app.delete('/crud', function(req, res){
-	authorized(req, res, function(board_named){
-		Board.remove({_id: req.body._id}, function(err){
-			if(err){
-				console.log(err);
-				res.json({error: err})
-			}else{
-				console.log('the ' + req.body.name + ' board has successfully been removed from the DataBase!')
-				res.sendStatus(200); // OK
-			}
-		})
-	});
-});
 
 
 /*
