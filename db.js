@@ -29,13 +29,12 @@ var Measurement = new Schema({
 
 var Board = new Schema({
 	name: String,
-	date: Date,
 	password: String,
 	location: {
 		lat: Number,
 		lng: Number
 	},
-	measurements: [{type: Schema.Types.ObjectId, ref: 'measurement'}]
+        measurements: [{type: Schema.Types.ObjectId, ref: 'Measurement'}]
 });
 
 // Model definition

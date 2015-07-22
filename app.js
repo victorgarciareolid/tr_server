@@ -35,7 +35,8 @@ server.listen(3000); // LISTEN AT PORT 3000
 */
 // READ ALL
 app.get('/api', function(req, res){
-	Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(e, data){
+        res.header("Access-Control-Allow-Origin", "*")
+        Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
 		if(err){
 			console.log(err);
 			res.json({error: err});
