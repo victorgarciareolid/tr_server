@@ -3,68 +3,120 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Índex</title>
-	<!-- Communication library -->
-	<script type="text/javascript" src="//cdn.socket.io/socket.io-1.3.4.js"></script>
-	<!-- Used to manage DOM -->
-	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-	<!-- Boostrap js and styles to improve design -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-	<!-- Leafletjs -->
-	<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.js'></script>
-	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.css' rel='stylesheet' />
 
- 	<script src="amcharts/amcharts.js" type="text/javascript"></script>
-	<script src="amcharts/serial.js" type="text/javascript"></script>
-		
-	<style>
-		.chart{
-			width: 640px;
-			max-height: 400px;
-		}
-		#map {
-			height: 500px;
-			width: 100%; 
-		}
+	<!-- Socket.io -->
+		<script type="text/javascript" src="http://cdn.socket.io/socket.io-1.3.4.js"></script>
+	<!-- JQuery -->
+		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+	<!-- Bootstrap -->
+
+	<!-- AmCharts -->
+		<script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+		<script src="http://www.amcharts.com/lib/3/serial.js"></script>
+	<!-- Google Maps -->
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBknaxGs0YUizkvAUDk_cYaLO97SklnxcI"></script>
+
+	<style type="text/css">
+	 html, body{
+	 	height: 100%;
+	 }
+	 #map{
+	 	height: 460px;
+	 }
+	 .chart{
+	 	height: 460px;
+	 }
 	</style>
 
-	<script>
-	$(document).ready(function(){
-		var socket = io('https://52.17.55.30', {secure:true}); // https://localhost:80 in production
-		
-		L.mapbox.accessToken = 'pk.eyJ1IjoidmljdG9yb3IiLCJhIjoiNWRKTUN2dyJ9.9DcllIJrvWGahws_K7ZuWA';
-		var map = L.mapbox.map('map', 'victoror.ljad1pkp').setView([40, -3], 6);
-		
-		socket.on('data', function(d){
-			d = d.data;
-			console.log(d)
-			for(var i=0; i < d.length; ++i){
-				var new_board = d[i].name;
-				var display = d[i];
-				var new_board_html = '<div id="__" class=".charts"></div>'.replace('__', new_board);
-				
-				$('#graph').append(new_board_html);
+<script>
+$(document).ready(function(){
+	var mapOptions = {
+    center: { lat: 41.358889, lng: 2.099167},
+	  zoom: 14
+	};
 
-				$('#' + new_board).append('<div id="__" class=".livechart"></div>'.replace('__', new_board));
-				$('#' + new_board).append('<div id="__" class=".historicalchart"></div>'.replace('__', new_board));
-				
-				//var chart = new AmSerialChart();
+	var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-				//chart.dataProvider = display.measurement;
+	addCircle({lat: 41, lng: 2}, 1000, "#000000", map)
+	$("#charts").append("")
+});
 
-				//chart.categoryField = "ppm"
-
-				var mark = L.marker([display.location.lat, display.location.lon]).addTo(map);
-				mark.bindPopup("<b>I am __!</b><br>Cool!".replace('__', new_board)).openPopup();
-			}
-			
-		});
-
-		socket.on('update', function(d){
-			console.log(d);
-		});
+var addCircle = function(center, radius, color, map){
+	var circle = new google.maps.Circle({
+		strokeWeight: 0,
+		fillColor: color,
+		fillOpacity: 0.35,
+		map: map,
+		center: center,
+		radius: radius
 	});
-	</script>
+}
+
+var makeChart = function(name, dataset){
+	  var chart = AmCharts.makeChart(name, {
+    "type": "serial",
+    "marginRight": 80,
+    "autoMarginOffset": 20,
+    "dataDateFormat": "YYYY-MM-DD",
+    "valueAxes": [{
+      "id": "v1",
+      "axisAlpha": 0,
+      "position": "left"
+    }],
+    "balloon": {
+      "borderThickness": 1,
+      "shadowAlpha": 0
+    },
+    "graphs": [{
+      "id": "g1",
+      "bullet": "round",
+      "bulletBorderAlpha": 1,
+      "bulletColor": "#FFFFFF",
+      "bulletSize": 5,
+      "hideBulletsCount": 50,
+      "lineThickness": 2,
+      "title": "red line",
+      "useLineColorForBulletBorder": true,
+      "valueField": "value",
+      "balloonText": "<div style='margin:5px; font-size:19px;'><span style='font-size:13px;'>[[category]]</span><br>[[value]]</div>"
+    }],
+    "chartScrollbar": {
+      "graph": "g1",
+      "scrollbarHeight": 80,
+      "backgroundAlpha": 0,
+      "selectedBackgroundAlpha": 0.1,
+      "selectedBackgroundColor": "#888888",
+      "graphFillAlpha": 0,
+      "graphLineAlpha": 0.5,
+      "selectedGraphFillAlpha": 0,
+      "selectedGraphLineAlpha": 1,
+      "autoGridCount": true,
+      "color": "#AAAAAA"
+    },
+    "chartCursor": {
+      "pan": true,
+      "valueLineEnabled": true,
+      "valueLineBalloonEnabled": true,
+      "cursorAlpha": 0,
+      "valueLineAlpha": 0.2
+    },
+    "categoryField": "date",
+    "categoryAxis": {
+      "parseDates": true,
+      "dashLength": 1,
+      "minorGridEnabled": true,
+      "position": "top"
+    },
+    "export": {
+      "enabled": true
+    },
+    "dataProvider": dataset
+  });
+}
+
+
+
+</script>
 </head>
 <body>
 	<header>
@@ -72,10 +124,9 @@
 			Título del projecto
 		</h1>
 	</header>
-
 	<div id="map"></div>
-	
-	<div id="graph"></div>
-	
+	<div id="charts">
+
+	</div>
 	</body>
 </html>
