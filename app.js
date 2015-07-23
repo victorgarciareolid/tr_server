@@ -1,7 +1,7 @@
 var app        = require('express')();
 var server     = require('http').Server(app);
 var io         = require('socket.io')(server);
-var cors       = require('cors')
+var cors       = require('cors');
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
 var children   = require('child_process'); // MULTIPROCESS
@@ -21,11 +21,7 @@ var authorized = tools.authorized;
 // Express config
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
 app.listen(80); // LISTEN AT PORT 3000
-app.all('/*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
-});
+app.use(cors());
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
