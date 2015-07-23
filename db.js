@@ -24,12 +24,12 @@ mongoose.connect(url, function(error){
 */
 var Measurement = new Schema({
 	date: Date,
-    concentration: Number
+    value: Number
 });
 
 var Board = new Schema({
 	name: String,
-	password: String,
+        password: String,
 	location: {
 		lat: Number,
 		lng: Number

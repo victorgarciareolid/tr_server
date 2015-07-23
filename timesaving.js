@@ -42,7 +42,7 @@ setInterval(function(){
 
                                 var measurement = new Measurement({
                                     date: new Date,
-                                    concentration: mean
+                                    value: mean
                                 });
 
                                 board_data.measurements.push(measurement);
