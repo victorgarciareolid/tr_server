@@ -1,7 +1,6 @@
 var express    = require('express');
 var app        = express(); // Require and created new express object
-var server     = require('http').Server(app); // Created new Server instance
-var io         = require('socket.io')(server);
+var io         = require('socket.io')(app);
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
 var children   = require('child_process'); // MULTIPROCESS
@@ -22,43 +21,19 @@ var authorized = tools.authorized;
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
 server.listen(3000); // LISTEN AT PORT 3000
 
-/*
-	Data pattern
-	{
-		name: "board_name",
-		password: "board_password",
-		location: {
-			lat: 232,
-			lng: 32
-		}
-	}
-*/
-// READ ALL
-app.get('/api', function(req, res){
-  res.header("Access-Control-Allow-Origin", "*")
+// Socket.io
+io.on('connection', function(socket){
+  console.log('broadcasting to website')
   Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
-		if(err){
-			console.log(err);
-			res.json({error: err});
-		}else{
-			res.json(data);
-		}
-	});
+    if(err){
+      console.log(err);
+    }else{
+      socket.emit('historical_data', {data: data})
+    }
+  });
 });
 
 
-
-/*
-	Data pattern for saving a new measurement
-	{
-		location: {
-			lat: 32,
-			lng: 23
-		},
-        concentration: 23.232
-
-	}
-*/
 // SAVING NEW MEASRUEMENT
 app.post('/', function(req, res){
 	authorized(req, res, function(board_name){
@@ -82,7 +57,7 @@ app.post('/', function(req, res){
         concentration: data.concentration,
         date: new Date
       }
-      io.emit('live', {data:data})
+      io.emit('live_data', {data:data})
     });
   });
 });
@@ -95,7 +70,7 @@ app.get('/', function(req, res){
 var child = children.fork('./timesaving');
 
 process.on('SIGINT', function(){
-    child.kill('SIGINT');
-    process.exit(0);
+  child.kill('SIGINT');
+  process.exit(0);
 });
 
