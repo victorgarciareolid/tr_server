@@ -24,7 +24,7 @@ mongoose.connect(url, function(error){
 */
 var Measurement = new Schema({
 	date: Date,
-    value: Number
+  concentration: Number
 });
 
 var Board = new Schema({

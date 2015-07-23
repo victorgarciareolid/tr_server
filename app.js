@@ -35,8 +35,8 @@ server.listen(3000); // LISTEN AT PORT 3000
 */
 // READ ALL
 app.get('/api', function(req, res){
-            res.header("Access-Control-Allow-Origin", "*")
-        Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
+  res.header("Access-Control-Allow-Origin", "*")
+  Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
 		if(err){
 			console.log(err);
 			res.json({error: err});
@@ -65,28 +65,26 @@ app.post('/', function(req, res){
 		var data = req.body;
 		console.log('----------------------------------');
 		console.log('Board ' + board_name);
-        console.log('Measurement: ', data.concentration);
+    console.log('Measurement: ', data.concentration);
 		console.log('----------------------------------');
-
-        redis_client.rpush(board_name, data.value, function(err, reply){
-            if(err){
-                console.log('Error: ', err);
-            }
-                else{
-                console.log(board_name + ' has saved a new concentration value to redis.');
-            }
-        } );
-
-        Board.findOne({name: board_name}, function(e, d){
-          datapoint = {
-            name: board_name,
-            location: d.location,
-            concentration: data.value,
-            date: new Date
-          }
-          io.emit('live', {live_data:datapoint})
-          });
+    redis_client.rpush(board_name, data.concentration, function(err, reply){
+      if(err){
+        console.log('Error: ', err);
+      }
+      else{
+        console.log(board_name + ' has saved a new concentration value to redis.');
+      }
     });
+    Board.findOne({name: board_name}, function(e, d){
+      datapoint = {
+        name: board_name,
+        location: d.location,
+        concentration: data.concentration,
+        date: new Date
+      }
+      io.emit('live', {data:data})
+    });
+  });
 });
 
 // GET WEB PAGE

@@ -45,8 +45,8 @@ $(document).ready(function(){
 	var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 	var boards = []
 
-	createChart("penemon", [{value: 32, date: new Date()}, {value: 3, date: new Date("2/2/2015")} ]);
-	createChart("penemono", [{value: 32, date: new Date()}, {value: 3, date: new Date("2/2/2015")} ]);
+	createChart("penemon", [{cocentration: 32, date: new Date()}, {cocentration: 3, date: new Date("2/2/2015")} ]);
+	createChart("penemono", [{concentration: 32, date: new Date()}, {cocentration: 3, date: new Date("2/2/2015")} ]);
 
 	$.getJSON(serverUrl).done(function(response){
 			console.log(response);
