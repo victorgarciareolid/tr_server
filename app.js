@@ -20,7 +20,11 @@ var authorized = tools.authorized;
 // Express config
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
 app.listen(80); // LISTEN AT PORT 3000
-res.header("Access-Control-Allow-Origin", "*");
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
