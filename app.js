@@ -19,7 +19,7 @@ var authorized = tools.authorized;
 
 // Express config
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
-server.listen(3000); // LISTEN AT PORT 3000
+app.listen(3000); // LISTEN AT PORT 3000
 
 // Socket.io
 io.on('connection', function(socket){
