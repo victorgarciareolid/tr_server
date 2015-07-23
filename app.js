@@ -1,4 +1,4 @@
-var app        = require('express').createServer();
+var app        = require('express')();
 var io         = require('socket.io')(app);
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
