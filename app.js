@@ -20,8 +20,8 @@ var authorized = tools.authorized;
 
 // Express config
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
-app.listen(3000); // LISTEN AT PORT 3000
 app.use(cors());
+app.listen(3000); // LISTEN AT PORT 3000
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
