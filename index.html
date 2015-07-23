@@ -4,37 +4,89 @@
 	<meta charset="UTF-8">
 	<title>Índex</title>
 
-	<!-- Socket.io -->
-		<script type="text/javascript" src="http://cdn.socket.io/socket.io-1.3.4.js"></script>
-	<!-- JQuery -->
-		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-	<!-- AmCharts -->
-		<script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
-		<script src="http://www.amcharts.com/lib/3/serial.js"></script>
-	<!-- Google Maps -->
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBknaxGs0YUizkvAUDk_cYaLO97SklnxcI"></script>
+<!-- Socket.io -->
+	<script type="text/javascript" src="http://cdn.socket.io/socket.io-1.3.4.js"></script>
+<!-- JQuery -->
+	<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<!-- AmCharts -->
+	<script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+	<script src="http://www.amcharts.com/lib/3/serial.js"></script>
+<!-- Google Maps -->
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBknaxGs0YUizkvAUDk_cYaLO97SklnxcI"></script>
 
-	<style type="text/css">
-	 html, body{
-	 	height: 100%;
-	 }
-	 #map{
-	 	height: 460px;
-	 }
-	 .chart{
-	 	height: 460px;
-	 }
-	</style>
+<style type="text/css">
+	html, body{
+	 height: 100%;
+	 width: 100%;
+	}
+	#map{
+		height: 460px;
+	}
+	.chart{
+	 height: 460px;
+	 width: 45%;
+	 margin: 0;
+	 display: inline-block;
+	}
+	#charts{
+		height: 460px;
+		width: 100%;
+	}
+</style>
 
 <script>
-
-
 $(document).ready(function(){
 	var mapOptions = {
     center: { lat: 41.358889, lng: 2.099167},
 	  zoom: 14
 	};
-	var chartConfig = {
+  var serverUrl = "http://192.168.163.128:3000/api"
+	var livecharts = []
+	var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+	var boards = []
+
+	createChart("penemon", [{value: 32, date: new Date()}, {value: 3, date: new Date("2/2/2015")} ]);
+	createChart("penemono", [{value: 32, date: new Date()}, {value: 3, date: new Date("2/2/2015")} ]);
+
+	$.getJSON(serverUrl).done(function(response){
+			console.log(response);
+
+			for(i in response){
+
+				var name = response[i].name;
+				var location = response[i].location;
+				boards.push(name);
+
+				$("#charts").append('<div id="' + name + '" class="chart"></div>');
+				$("#" + name).append('<div id="' + name +  "historical" + '" class="chart"></div>');
+				addCircle(location, 10, "#000000", map);
+				createChart(); // PROBELAMAAAAAA // POSIBLE SOLUCIÓN: ARRAY CON LOS OBJETOS
+			}
+	});
+
+
+
+/*
+	$("#" + board_name).append('<div id="' + board_name + "live " + '" class="chart"></div>');
+	livecharts.push(createChart(board_name +  "live", board_data));
+	createChart(board_name +  "historical", board_data);
+*/
+
+});
+
+var addCircle = function(center, radius, color, map){
+	var circle = new google.maps.Circle({
+		strokeWeight: 0,
+		fillColor: color,
+		fillOpacity: 0.35,
+		map: map,
+		center: center,
+		radius: radius
+	});
+}
+
+var createChart = function(name, dataset){
+	  var chart = AmCharts.makeChart(name, {
     "type": "serial",
     "marginRight": 80,
     "autoMarginOffset": 20,
@@ -89,40 +141,10 @@ $(document).ready(function(){
       "position": "top"
     },
     "export": {
-      "enabled": true
-    }}
-  var serverUrl = "http://192.168.163.128:3000/crud"
-	var livecharts = []
-	var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-	$.ajax(serverUrl).done(function(json){
-			console.log(json);
-
-	});
-	createChart();
-	addCircle(location, 1000, "#000000", map);
-	$("#charts").append('<div id="' + board_name + '" class="chart"></div>');
-	$("#" + board_name).append('<div id="' + board_name +  "historical" + '" class="chart"></div>');
-	$("#" + board_name).append('<div id="' + board_name + "live " + '" class="chart"></div>');
-	livecharts.push(createChart(board_name +  "live", board_data));
-	createChart(board_name +  "historical", board_data);
-
-
-});
-
-var addCircle = function(center, radius, color, map){
-	var circle = new google.maps.Circle({
-		strokeWeight: 0,
-		fillColor: color,
-		fillOpacity: 0.35,
-		map: map,
-		center: center,
-		radius: radius
-	});
-}
-
-var createChart = function(name, dataset, chartConfig){
-	  var chart = AmCharts.makeChart(name, {"dataProvider": dataset});
+      "enabled": true,
+    },
+    "dataProvider": dataset
+  });
 	return chart;
 }
 
@@ -135,6 +157,10 @@ var createChart = function(name, dataset, chartConfig){
 		</h1>
 	</header>
 	<div id="map"></div>
-	<div id="charts"></div>
+	<div id="charts">
+			<div id="penemon" class="chart"></div>
+			<div id="penemono" class="chart"></div>
+	</div>
+
 	</body>
 </html>
