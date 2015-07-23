@@ -1,7 +1,6 @@
 var app        = require('express')();
 var server     = require('http').Server(app);
 var io         = require('socket.io')(server);
-var cors       = require('cors');
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
 var children   = require('child_process'); // MULTIPROCESS
@@ -17,11 +16,9 @@ var Board       = db.board;
 
 // Authorization
 var authorized = tools.authorized;
-
 // Express config
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
-app.use(cors());
-app.listen(3000); // LISTEN AT PORT 3000
+server.listen(3000);
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
@@ -29,7 +26,7 @@ io.on('connection', function(socket){
     if(err){
       console.log(err);
     }else{
-      socket.emit('historical_data', {data: data})
+      socket.emit('historical_data', {data: data});
     }
   });
 });
