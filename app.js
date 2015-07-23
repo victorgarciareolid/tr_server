@@ -1,5 +1,6 @@
 var app        = require('express')();
-var io         = require('socket.io')(app);
+var server     = require('http').Server();
+var io         = require('socket.io')(server);
 var bodyParser = require('body-parser'); // JSON PARSING
 var redis      = require('./redis'); // REDIS DB CLIENT
 var children   = require('child_process'); // MULTIPROCESS
