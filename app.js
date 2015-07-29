@@ -24,7 +24,7 @@ io.on('connection', function(socket){
   console.log('broadcasting to website')
   Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
     if(err){
-      console.log(err);
+      console.log("Error: ", err);
     }else{
       socket.emit('historical_data', {data: data});
     }

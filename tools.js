@@ -57,24 +57,20 @@ module.exports.authorized = function(request, response, callback){
 	}
 
 	// When client sends authorization requeriments
-	if(request.get('Authorization') !== undefined){
+    var auth_header = request.get("Authorization");
+    if(auth_header !== undefined ){
+        // Parsing response date_day
+        try{
+            auth_header            = auth_header.slice(7, auth_header.length).split(', ');
+            client_header.username = auth_header[0].replace(/(username=)|(")/g, '');
+            client_header.realm    = auth_header[1].replace(/(realm=)|(")/g, '');
+            client_header.nonce    = auth_header[2].replace(/(nonce=)|(")/g, '');
+            client_header.uri      = auth_header[3].replace(/(uri=)|(")/g,'');
+            client_header.response = auth_header[4].replace(/(response=)|(")/g, '');
 
-		// Get the header authorization sent from the client
-		var recv_header        = request.get('Authorization');
+            var username = client_header.username;
 
-		// Parsing every single data
-		recv_header            = recv_header.slice(7, recv_header.length).split(', ');
-		client_header.username = recv_header[0].replace(/(username=)|(")/g, '');
-		client_header.realm    = recv_header[1].replace(/(realm=)|(")/g, '');
-		client_header.nonce    = recv_header[2].replace(/(nonce=)|(")/g, '');
-		client_header.uri      = recv_header[3].replace(/(uri=)|(")/g,'');
-	    client_header.response = recv_header[4].replace(/(response=)|(")/g, '');
-
-
-        var username = client_header.username;
-        console.log(username)
-
-        Board.findOne({name: username}, function(e, d){
+            Board.findOne({name: username}, function(e, board){
 
             /*
 				A1 = MD5(username:realm:password)
@@ -82,32 +78,34 @@ module.exports.authorized = function(request, response, callback){
 
 				response = MD5(A1:nonce:A2)
 			*/
-            console.log(d)
-            if(d == null|| e){
-                console.log('Unauthorized');
-                response.sendStatus(401);
-            }else{
-			A1 =  md5(client_header.username + ':' + client_header.realm + ':' + d.password);
+                if(board == null|| e){
+                   console.log('Unauthorized');
+                  response.sendStatus(401);
+                }else{
+		    	    A1 =  md5(client_header.username + ':' + client_header.realm + ':' + board.password);
 
-			A2 = md5(request.method + ':' + client_header.uri);
+			        A2 = md5(request.method + ':' + client_header.uri);
 
-            server_gen_response = md5(A1 + ':' + client_header.nonce + ':' + A2);
+                    server_gen_response = md5(A1 + ':' + client_header.nonce + ':' + A2);
 
-			// Gen response to check if the client's request is the same as the generated string.
-			if(client_header.response == server_gen_response){
-				callback(client_header.username);
-                response.sendStatus(200);
-			}else{
-				console.log('Unauthorized.')
-				response.sendStatus(401) // 401 => status code for unauthorized
-			}
+			        // Gen response to check if the client's request is the same as the generated string.
+			        if(client_header.response == server_gen_response){
+				        callback(client_header.username);
+                        response.sendStatus(200);
+			        }else{
+				        console.log('Unauthorized.')
+				        response.sendStatus(401) // 401 => status code for unauthorized
+			        }
 
-		}
-    });
-
+                 };
+            });
+        }
+        catch(e){
+            console.log("Unauthorized");
+            response.sendStatus(401)
+        }
 	// Request from a client (raspberry pi) trying to accces to a blocked source
-	}else{
-		var recv_header = request.get('www-Authenticate');
+    }else{
 		server_reponse_pattern = 'Digest realm=' + server_header.realm + ', nonce=' + server_header.nonce;
 		response.set('www-Authenticate', server_reponse_pattern);
 		response.sendStatus(401);
