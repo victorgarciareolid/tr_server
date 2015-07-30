@@ -12,7 +12,7 @@ url = 'mongodb://victor:45279BCO490@ds061701.mongolab.com:61701/data'
 mongoose.connect(url, function(error){
 	if(error) console.log(error);
 	else console.log('MongoDB running! Connected to: ' + url);
-})
+});
 
 // Schema definition
 /*
