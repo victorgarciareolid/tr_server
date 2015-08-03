@@ -82,13 +82,12 @@ module.exports.authorized = function(request, response, callback){
                    console.log('Unauthorized');
                   response.sendStatus(401);
                 }else{
-		    	    A1 =  md5(client_header.username + ':' + client_header.realm + ':' + board.password);
+                    A1 =  md5(username + ':' + client_header.realm + ':' + board.password);
 
 			        A2 = md5(request.method + ':' + client_header.uri);
 
                     server_gen_response = md5(A1 + ':' + client_header.nonce + ':' + A2);
-
-			        // Gen response to check if the client's request is the same as the generated string.
+                    // Gen response to check if the client's request is the same as the generated string.
 			        if(client_header.response == server_gen_response){
 				        callback(client_header.username);
                         response.sendStatus(200);

@@ -22,7 +22,7 @@ server.listen(3000);
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
-  Board.find({}).select('-__v -password -_id').populate('measurements').exec(function(err, data){
+  Board.find({}).select('-__v -password -_id').populate('measurements', '-__v -_id').exec(function(err, data){
     if(err){
       console.log("Error: ", err);
     }else{
@@ -38,7 +38,7 @@ app.post('/', function(req, res){
 		var data = req.body;
 		console.log('----------------------------------');
 		console.log('Board ' + board_name);
-    console.log('Measurement: ', data.concentration);
+        console.log('Measurement: ', data.concentration);
 		console.log('----------------------------------');
     redis_client.rpush(board_name, data.concentration, function(err, reply){
       if(err){
@@ -49,7 +49,7 @@ app.post('/', function(req, res){
       }
     });
     Board.findOne({name: board_name}, function(e, d){
-      datapoint = {
+      data = {
         name: board_name,
         location: d.location,
         concentration: data.concentration,

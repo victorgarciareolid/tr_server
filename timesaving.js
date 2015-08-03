@@ -46,5 +46,5 @@ setInterval(function(){
 	    })(board_name, board_data);
 	}
     });
-}, 10000);
+},1800 * 1000);
 
