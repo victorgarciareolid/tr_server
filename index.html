@@ -4,6 +4,10 @@
 	<meta charset="UTF-8">
 	<title>Índex</title>
 
+<!-- Bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <!-- Socket.io -->
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <!-- JQuery -->
@@ -11,6 +15,7 @@
 <!-- AmCharts -->
 	<script src="http://www.amcharts.com/lib/3/amcharts.js"></script>
 	<script src="http://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="http://www.amcharts.com/lib/3/themes/light.js"></script>
 <!-- Google Maps -->
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBknaxGs0YUizkvAUDk_cYaLO97SklnxcI"></script>
 
@@ -52,14 +57,45 @@ $(document).ready(function(){
     var live_charts_options = {
         "type":"serial",
         "categoryField": "date",
-        "graphs" : [{"valueField": "concentration"}],
+        "graphs" : [{
+            "valueField": "concentration",
+            "type": "smoothedLine",
+        }],
         "dataProvider" : []
     }
 
     var historical_charts_options = {
         "type": "serial",
+        "theme": "light",
         "categoryField": "date",
-        "graphs": [{"valueField": "concentration"}],
+        "categoryAxis": {
+            "parseDates": true,
+            "minPeriod": "mm",
+            "minorGridEnabled": true
+        },
+        "graphs": [{
+            "bullet": "round",
+            "valueField": "concentration",
+            "type": "smoothedLine"
+        }],
+        "chartCursor" : {
+             "pan":true
+        },
+        "chartScrollbar" : {
+    "graph": "g1",
+    "oppositeAxis": false,
+    "offset": 30,
+    "scrollbarHeight": 80,
+    "backgroundAlpha": 0,
+    "selectedBackgroundAlpha": 0.1,
+    "selectedBackgroundColor": "#888888",
+    "graphFillAlpha": 0,
+    "graphLineAlpha": 0.5,
+    "selectedGraphFillAlpha": 0,
+    "selectedGraphLineAlpha": 1,
+    "autoGridCount": true,
+    "color": "#AAAAAA"
+        },
         "dataProvider": []
     }
 
@@ -79,7 +115,7 @@ $(document).ready(function(){
             .append('<div id="' + name + "historical" + '" class="chart"></div>')
             .append('<div id="' + name + "live" + '" class="text">Offline</div>');
         
-            options.dataProvider = (board.measurements);
+            options.dataProvider = board.measurements;
         createChart(name + "historical", options);
         
     }

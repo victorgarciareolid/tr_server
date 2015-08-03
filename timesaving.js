@@ -8,7 +8,7 @@ var client = redis.client;
 
 // Check every second
 setInterval(function(){
-    Board.find({}, function(e, boards){
+        Board.find({}, function(e, boards){
 		// For every board in the database
 	for(var i = 0; i < boards.length; ++i){
         var board_name = boards[i].name;
@@ -38,7 +38,7 @@ setInterval(function(){
                     });
 
                     console.log("=====================");
-                    console.log("Board: " + board_name + "is saving data to mongoDB.")
+                    console.log("Board: " + board_name + " is saving data to mongoDB.")
                     console.log("=====================");
                 }
             });
@@ -46,5 +46,6 @@ setInterval(function(){
 	    })(board_name, board_data);
 	}
     });
-},1800 * 1000);
+
+}, 10000);
 
