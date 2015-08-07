@@ -52,7 +52,7 @@ app.post('/data', function(req, res){
       data = {
         name: board_name,
         location: d.location,
-        concentration: data.concentration,
+        concentration: round_1(data.concentration),
         date: new Date
       }
       io.emit('live_data', {data:data})
