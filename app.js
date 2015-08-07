@@ -33,7 +33,7 @@ io.on('connection', function(socket){
 
 
 // SAVING NEW MEASRUEMENT
-app.post('/', function(req, res){
+app.post('/data', function(req, res){
 	authorized(req, res, function(board_name){
 		var data = req.body;
 		console.log('----------------------------------');
@@ -58,11 +58,6 @@ app.post('/', function(req, res){
       io.emit('live_data', {data:data})
     });
   });
-});
-
-// GET WEB PAGE
-app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
 });
 
 var child = children.fork('./timesaving');

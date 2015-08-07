@@ -3,12 +3,25 @@ var Board  = require('./db').board;
 var redis  = require('./redis');
 var client = redis.client;
 
+
 /**
- * [Gen nonce param]
- * @param  {[Number]} length [length of the string generated]
- * @return {[String]}        [random alphanumeric string]
+ * Rounds given number
+ * @param {Number} num
+ * @return {Number}
+ *
  */
-var gen_nonce = function(length){
+module.exports.round_1 = function(num)
+{
+    return Math.round(num * 10)/10;
+}
+
+/**
+* [Gen nonce param]
+* @param  {Number} length
+* @return {String}
+*/
+var gen_nonce = function(length)
+{
     var nonce = "";
     var mask = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -20,7 +33,8 @@ var gen_nonce = function(length){
 }
 
 // ARITHMETIC MEAN
-module.exports.mean = function(array){
+module.exports.mean = function(array)
+{
     var sum = 0;
     if(array == undefined || array.length == 0){
         return sum;
@@ -28,7 +42,7 @@ module.exports.mean = function(array){
 		for(var i = 0; i < array.length; ++i){ // Addition of all the values
            sum += parseInt(array[i], 10);
 		}
-		return sum/array.length; // Divide by the number of elements in the array
+		return round_1(sum/array.length); // Divide by the number of elements in the array
 	}
 }
 
@@ -39,7 +53,8 @@ module.exports.mean = function(array){
  * @param  {[function]} callback   [when the process finish allows the client to access to the private functions]
  * @return {[none]}                [none]
  */
-module.exports.authorized = function(request, response, callback){
+module.exports.authorized = function(request, response, callback)
+{
 
 	// Header WWW-Authenticate
 	var server_header = {
@@ -58,9 +73,11 @@ module.exports.authorized = function(request, response, callback){
 
 	// When client sends authorization requeriments
     var auth_header = request.get("Authorization");
-    if(auth_header !== undefined ){
+    if(auth_header !== undefined )
+    {
         // Parsing response date_day
-        try{
+        try
+        {
             auth_header            = auth_header.slice(7, auth_header.length).split(', ');
             client_header.username = auth_header[0].replace(/(username=)|(")/g, '');
             client_header.realm    = auth_header[1].replace(/(realm=)|(")/g, '');
@@ -78,10 +95,13 @@ module.exports.authorized = function(request, response, callback){
 
 				response = MD5(A1:nonce:A2)
 			*/
-                if(board == null|| e){
+                if(board == null|| e)
+                {
                    console.log('Unauthorized');
                   response.sendStatus(401);
-                }else{
+                }
+                else
+                {
                     A1 =  md5(username + ':' + client_header.realm + ':' + board.password);
 
 			        A2 = md5(request.method + ':' + client_header.uri);
@@ -96,10 +116,11 @@ module.exports.authorized = function(request, response, callback){
 				        response.sendStatus(401) // 401 => status code for unauthorized
 			        }
 
-                 };
+                 }
             });
         }
-        catch(e){
+        catch(e)
+        {
             console.log("Unauthorized");
             response.sendStatus(401)
         }
