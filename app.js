@@ -33,7 +33,7 @@ io.on('connection', function(socket){
 
 
 // SAVING NEW MEASRUEMENT
-app.post('/data', function(req, res){
+app.post('/', function(req, res){
 	authorized(req, res, function(board_name){
 		var data = req.body;
 		console.log('----------------------------------');

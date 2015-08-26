@@ -1,4 +1,4 @@
-#!/usr/bin/env nodejs
+#!/usr/bin/node
 
 var Board   = require("./db").board;
 var crypto  = require("crypto");
