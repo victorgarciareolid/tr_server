@@ -42,7 +42,7 @@ module.exports.mean = function(array)
 		for(var i = 0; i < array.length; ++i){ // Addition of all the values
            sum += parseInt(array[i], 10);
 		}
-		return round_1(sum/array.length); // Divide by the number of elements in the array
+		return sum/array.length; // Divide by the number of elements in the array
 	}
 }
 

@@ -34,7 +34,7 @@ io.on('connection', function(socket){
 
 
 // SAVING NEW MEASRUEMENT
-app.post('/', function(req, res){
+app.post('/data', function(req, res){
 	authorized(req, res, function(board_name){
 		var data = req.body;
 		console.log('----------------------------------');
@@ -49,15 +49,12 @@ app.post('/', function(req, res){
         console.log(board_name + ' has saved a new concentration value to redis.');
       }
     });
-    Board.findOne({name: board_name}, function(e, d){
-      data = {
+    data = {
         name: board_name,
-        location: d.location,
-        concentration: round_1(data.concentration),
+        concentration: tools.round_1(data.concentration),
         date: new Date
-      }
-      io.emit('live_data', {data:data})
-    });
+    }
+    io.sockets.emit('live_data', {data:data})
   });
 });
 
@@ -82,7 +79,7 @@ setInterval(function(){
                     		});
                     		var measurement = new Measurement({
                         		date: new Date,
-                        		concentration: mean
+                        		concentration: round_1(mean)
                     		});
                     		board_data.measurements.push(measurement);
                     		board_data.save(function(e){
