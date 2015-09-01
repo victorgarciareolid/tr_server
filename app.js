@@ -20,6 +20,12 @@ var authorized = tools.authorized;
 app.use(bodyParser.json()); // PARSING JSON STRINGS TO JSON OBJECTS
 server.listen(3000);
 
+// Express error handler
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send('Server error!');
+});
+
 // Socket.io
 io.on('connection', function(socket){
   console.log('broadcasting to website')
@@ -73,13 +79,13 @@ setInterval(function(){
                 	}
                 	else
                 	{
-                    		var mean = tools.mean(measurements);
+                    		var mean = tools.round_1(tools.mean(measurements));
                     		redis_client.del(board_name, function(e, r){
                         		if(e) console.log('Error: ', e)
                     		});
                     		var measurement = new Measurement({
                         		date: new Date,
-                        		concentration: tools.round_1(mean)
+                        		concentration: mean
                     		});
                     		board_data.measurements.push(measurement);
                     		board_data.save(function(e){
